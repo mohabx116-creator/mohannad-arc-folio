@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { alSe7r } from "@/lib/al-se7r-data";
-import { type AdminAuthState, requireAdminAction, resolveAdminAuth, signInWithGoogleAdmin } from "@/lib/admin-auth";
+import { type AdminAuthState, requireAdminAction, resolveAdminAuth, signInWithEmailAdmin, signInWithGoogleAdmin } from "@/lib/admin-auth";
 
 export const Route = createFileRoute("/admin")({
   component: Admin,
@@ -78,6 +78,9 @@ const categoryOptions = [
 export default function Admin() {
   const [auth, setAuth] = useState<AdminAuthState>({ status: "loading" });
   const [loading, setLoading] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
+  const [emailLoginError, setEmailLoginError] = useState("");
+  const [emailLogin, setEmailLogin] = useState({ email: "", password: "" });
 
   async function recheckAccess() {
     setAuth({ status: "loading" });
@@ -95,6 +98,21 @@ export default function Admin() {
     const result = await signInWithGoogleAdmin();
     setLoading(false);
     if (result.error) toast.error("Sign in failed.");
+  }
+
+  async function signInWithEmail(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setEmailLoginError("");
+    setEmailLoading(true);
+    const result = await signInWithEmailAdmin(emailLogin.email.trim(), emailLogin.password);
+    setEmailLoading(false);
+
+    if (result.error) {
+      setEmailLoginError(result.error.message || "Email sign in failed.");
+      return;
+    }
+
+    await recheckAccess();
   }
 
   async function signOut() {
@@ -119,6 +137,47 @@ export default function Admin() {
           <button onClick={signInWithGoogle} disabled={loading} className="mt-10 w-full bg-ivory px-8 py-4 text-[11px] uppercase tracking-[0.3em] text-onyx hover:bg-gold disabled:opacity-50">
             {loading ? "Connecting..." : "Continue with Google"}
           </button>
+          <div className="my-8 flex w-full items-center gap-3 text-[10px] uppercase tracking-[0.25em] text-ivory/35">
+            <span className="h-px flex-1 bg-ivory/10" />
+            Or
+            <span className="h-px flex-1 bg-ivory/10" />
+          </div>
+          <form onSubmit={signInWithEmail} className="w-full space-y-4 text-left">
+            <label className="block">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-ivory/45">Email</span>
+              <input
+                type="email"
+                required
+                autoComplete="email"
+                value={emailLogin.email}
+                onChange={(event) => setEmailLogin((current) => ({ ...current, email: event.target.value }))}
+                className="mt-2 w-full border border-ivory/20 bg-onyx px-4 py-3 text-sm text-ivory outline-none transition-colors focus:border-gold"
+              />
+            </label>
+            <label className="block">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-ivory/45">Password</span>
+              <input
+                type="password"
+                required
+                autoComplete="current-password"
+                value={emailLogin.password}
+                onChange={(event) => setEmailLogin((current) => ({ ...current, password: event.target.value }))}
+                className="mt-2 w-full border border-ivory/20 bg-onyx px-4 py-3 text-sm text-ivory outline-none transition-colors focus:border-gold"
+              />
+            </label>
+            {emailLoginError && (
+              <p className="border border-red-300/30 bg-red-500/10 px-4 py-3 text-xs leading-relaxed text-red-100">
+                {emailLoginError}
+              </p>
+            )}
+            <button
+              type="submit"
+              disabled={emailLoading}
+              className="w-full border border-gold px-8 py-4 text-center text-[11px] uppercase tracking-[0.3em] text-gold transition-colors hover:bg-gold hover:text-onyx disabled:opacity-50"
+            >
+              {emailLoading ? "Signing in..." : "Sign in with Email"}
+            </button>
+          </form>
           <p className="mt-5 text-[10px] uppercase tracking-[0.25em] text-ivory/35">Access is restricted to authorized admin accounts only.</p>
         </section>
       </Shell>
@@ -130,7 +189,7 @@ export default function Admin() {
       <Shell>
         <section className="mx-auto max-w-xl px-6 py-24 text-center">
           <h1 className="font-display text-5xl">Access Denied</h1>
-          <p className="mt-4 text-sm text-ivory/60">This Google account is authenticated but not authorized to access the portfolio CMS.</p>
+          <p className="mt-4 text-sm text-ivory/60">This account is authenticated but not authorized to access the portfolio CMS.</p>
           <p className="mt-5 break-all text-xs text-gold/80">email: {auth.email}</p>
           <div className="mt-8 flex justify-center gap-3">
             <button onClick={signOut} className="border border-ivory/25 px-6 py-3 text-[10px] uppercase tracking-[0.3em] hover:border-gold hover:text-gold">Logout</button>
@@ -147,7 +206,7 @@ export default function Admin() {
         <section className="mx-auto max-w-2xl px-6 py-24">
           <h1 className="text-center font-display text-5xl">Admin Role Setup Required</h1>
           <p className="mx-auto mt-4 max-w-xl text-center text-sm leading-relaxed text-ivory/60">
-            Google login succeeded, but the admin role has not been created in Supabase yet.
+            Login succeeded, but the admin role has not been created in Supabase yet.
           </p>
           <div className="mt-8 border border-ivory/10 bg-ivory/[0.03] p-6">
             <CopyLine label="user_id" value={auth.userId ?? ""} />

@@ -31,6 +31,13 @@ export async function signInWithGoogleAdmin() {
   });
 }
 
+export async function signInWithEmailAdmin(email: string, password: string) {
+  return supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+}
+
 export async function resolveAdminAuth(): Promise<AdminAuthState> {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return { status: "login_required" };
