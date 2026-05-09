@@ -73,13 +73,15 @@ function mapProject(project: ProjectDb, sections: SectionDb[], assets: AssetDb[]
   const mappedAssets = assets.map(mapAsset);
   const visualAssets = mappedAssets.filter(isVisualAsset).sort((a, b) => visualRank(a) - visualRank(b) || a.order - b.order);
   const anyAsset = mappedAssets.find((asset) => asset.type === "image") ?? mappedAssets[0];
+  const selectedHeroAsset = mappedAssets.find((asset) => asset.id === project.hero_asset_id);
+  const selectedCoverAsset = mappedAssets.find((asset) => asset.id === project.cover_asset_id);
   const heroAsset =
-    mappedAssets.find((asset) => asset.id === project.hero_asset_id) ??
+    (selectedHeroAsset && (isVisualAsset(selectedHeroAsset) || visualAssets.length === 0) ? selectedHeroAsset : undefined) ??
     mappedAssets.find((asset) => asset.isHero && isVisualAsset(asset)) ??
     visualAssets[0] ??
     anyAsset;
   const coverAsset =
-    mappedAssets.find((asset) => asset.id === project.cover_asset_id) ??
+    (selectedCoverAsset && (isVisualAsset(selectedCoverAsset) || visualAssets.length === 0) ? selectedCoverAsset : undefined) ??
     mappedAssets.find((asset) => asset.isCover && isVisualAsset(asset)) ??
     visualAssets[0] ??
     anyAsset;

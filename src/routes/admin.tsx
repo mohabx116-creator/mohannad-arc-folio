@@ -51,6 +51,7 @@ type AssetRow = {
   asset_type: string;
   mime_type?: string | null;
   category?: string | null;
+  metadata?: Record<string, unknown> | null;
   is_hero?: boolean;
   is_cover?: boolean;
   is_published?: boolean;
@@ -302,7 +303,11 @@ async function fetchContactInfo(): Promise<ContactInfoRow | null> {
 }
 
 function PreviewPanel({ project, sections, assets }: { project?: ProjectRow; sections: SectionRow[]; assets: AssetRow[] }) {
-  const hero = assets.find((asset) => asset.is_hero)?.file_url ?? project?.cover_image ?? alSe7r.hero;
+  const hero =
+    assets.find((asset) => asset.id === project?.hero_asset_id)?.file_url ??
+    assets.find((asset) => asset.is_hero)?.file_url ??
+    project?.cover_image ??
+    alSe7r.hero;
   return (
     <section className="overflow-hidden border border-ivory/10">
       <div className="relative min-h-[520px]">
