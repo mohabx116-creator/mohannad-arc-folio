@@ -32,6 +32,18 @@ export const fallback = {
   ],
   projects: [
     {
+      id: "alse7r",
+      slug: "al-se7r-tower",
+      title: "Al Se7r Tower",
+      category: "Mixed-Use",
+      location: "—",
+      year: "Portfolio",
+      cover_image: "/portfolio/alse7r/renders/exterior-render-01.png",
+      description: "A mixed-use mall and tower development integrating retail, hospitality, workplace, and tower functions within a coordinated commercial complex.",
+      software: [],
+      featured: true,
+    },
+    {
       id: "1",
       title: "Modern Outdoor Space Design",
       category: "Landscape",
@@ -51,7 +63,18 @@ export const fallback = {
       description: "A residential facade study balancing modern proportions with warm Mediterranean materiality.",
       software: ["Revit","Enscape","AutoCAD"],
     },
-  ],
+  ] as Array<{
+    id: string;
+    slug?: string;
+    title: string;
+    category: string;
+    location: string;
+    year: string;
+    cover_image: string;
+    description: string;
+    software: string[];
+    featured?: boolean;
+  }>,
   contact: {
     email: "mohannad.elnady@example.com",
     phone: "+20 100 000 0000",

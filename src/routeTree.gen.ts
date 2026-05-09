@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ProjectsAlSe7rTowerRouteImport } from './routes/projects.al-se7r-tower'
 
 const PortfolioRoute = PortfolioRouteImport.update({
   id: '/portfolio',
@@ -28,35 +29,44 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProjectsAlSe7rTowerRoute = ProjectsAlSe7rTowerRouteImport.update({
+  id: '/projects/al-se7r-tower',
+  path: '/projects/al-se7r-tower',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/portfolio': typeof PortfolioRoute
+  '/projects/al-se7r-tower': typeof ProjectsAlSe7rTowerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/portfolio': typeof PortfolioRoute
+  '/projects/al-se7r-tower': typeof ProjectsAlSe7rTowerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/portfolio': typeof PortfolioRoute
+  '/projects/al-se7r-tower': typeof ProjectsAlSe7rTowerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/portfolio'
+  fullPaths: '/' | '/admin' | '/portfolio' | '/projects/al-se7r-tower'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/portfolio'
-  id: '__root__' | '/' | '/admin' | '/portfolio'
+  to: '/' | '/admin' | '/portfolio' | '/projects/al-se7r-tower'
+  id: '__root__' | '/' | '/admin' | '/portfolio' | '/projects/al-se7r-tower'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   PortfolioRoute: typeof PortfolioRoute
+  ProjectsAlSe7rTowerRoute: typeof ProjectsAlSe7rTowerRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/projects/al-se7r-tower': {
+      id: '/projects/al-se7r-tower'
+      path: '/projects/al-se7r-tower'
+      fullPath: '/projects/al-se7r-tower'
+      preLoaderRoute: typeof ProjectsAlSe7rTowerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   PortfolioRoute: PortfolioRoute,
+  ProjectsAlSe7rTowerRoute: ProjectsAlSe7rTowerRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

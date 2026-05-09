@@ -286,43 +286,67 @@ function Projects({ items }: { items: typeof fallback.projects }) {
       </div>
 
       <div className="grid gap-8 md:grid-cols-2">
-        {filtered.map((p, i) => (
-          <motion.article
-            key={p.id ?? p.title}
-            initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }}
-            transition={{ duration: 0.7, delay: i * 0.08 }}
-            className="group cursor-pointer"
-          >
-            <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-              {p.cover_image ? (
-                <img
-                  src={p.cover_image}
-                  alt={p.title}
-                  loading="lazy"
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              ) : (
-                <div className="flex h-full items-center justify-center text-muted-foreground">No image</div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-onyx/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-              <div className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center bg-background/90 text-foreground opacity-0 transition-opacity duration-500 group-hover:opacity-100">
-                <ArrowUpRight className="h-4 w-4" />
-              </div>
-            </div>
-            <div className="mt-5 flex items-baseline justify-between gap-4">
-              <div>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-gold">{p.category} · {p.location} · {p.year}</p>
-                <h3 className="mt-2 font-display text-2xl md:text-3xl">{p.title}</h3>
-              </div>
-            </div>
-            <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{p.description}</p>
-            {p.software && p.software.length > 0 && (
-              <p className="mt-3 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
-                {p.software.join(" · ")}
-              </p>
-            )}
-          </motion.article>
-        ))}
+        {filtered.map((p, i) => {
+          const slug = (p as { slug?: string }).slug;
+          const featured = (p as { featured?: boolean }).featured;
+          const Wrapper = ({ children }: { children: React.ReactNode }) =>
+            slug === "al-se7r-tower" ? (
+              <Link to="/projects/al-se7r-tower" className="block">{children}</Link>
+            ) : (
+              <div>{children}</div>
+            );
+          return (
+            <motion.article
+              key={p.id ?? p.title}
+              initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }}
+              transition={{ duration: 0.7, delay: i * 0.08 }}
+              className={`group ${featured ? "md:col-span-2" : ""}`}
+            >
+              <Wrapper>
+                <div className={`relative overflow-hidden bg-muted ${featured ? "aspect-[16/9]" : "aspect-[4/3]"}`}>
+                  {p.cover_image ? (
+                    <img
+                      src={p.cover_image}
+                      alt={p.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="flex h-full items-center justify-center text-muted-foreground">No image</div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-onyx/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                  {featured && (
+                    <span className="absolute left-4 top-4 bg-gold px-3 py-1.5 text-[10px] uppercase tracking-[0.3em] text-onyx">
+                      Featured Case Study
+                    </span>
+                  )}
+                  {slug && (
+                    <div className="absolute right-4 top-4 flex h-10 w-10 items-center justify-center bg-background/90 text-foreground opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+                      <ArrowUpRight className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
+                <div className="mt-5 flex items-baseline justify-between gap-4">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.3em] text-gold">{p.category}{p.location ? ` · ${p.location}` : ""}{p.year ? ` · ${p.year}` : ""}</p>
+                    <h3 className={`mt-2 font-display ${featured ? "text-3xl md:text-5xl" : "text-2xl md:text-3xl"}`}>{p.title}</h3>
+                  </div>
+                </div>
+                <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground">{p.description}</p>
+                {p.software && p.software.length > 0 && (
+                  <p className="mt-3 text-[10px] uppercase tracking-[0.25em] text-muted-foreground">
+                    {p.software.join(" · ")}
+                  </p>
+                )}
+                {slug && (
+                  <p className="mt-4 inline-flex items-center gap-2 text-[10px] uppercase tracking-[0.35em] text-foreground">
+                    View Case Study <ArrowUpRight className="h-3 w-3" />
+                  </p>
+                )}
+              </Wrapper>
+            </motion.article>
+          );
+        })}
       </div>
     </section>
   );
