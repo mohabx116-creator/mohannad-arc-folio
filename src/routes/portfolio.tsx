@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, ArrowUpRight, Mail, MessageCircle, Phone } from "lucide-react";
+import { ArrowLeft, ArrowRight, ArrowUpRight, Instagram, Mail, MessageCircle, Phone } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -144,6 +144,12 @@ function Portfolio() {
 
 function Contact() {
   const [submitting, setSubmitting] = useState(false);
+  const contactQuery = useQuery({
+    queryKey: ["public-contact"],
+    queryFn: fetchPublicContactInfo,
+    staleTime: 1000 * 60 * 5,
+  });
+  const contact = contactQuery.data ?? defaultContactInfo;
   const mutation = useMutation({
     mutationFn: async (payload: { name: string; email: string; phone: string; message: string }) => {
       const { error } = await supabase.from("contact_messages").insert(payload as never);
@@ -179,8 +185,9 @@ function Contact() {
           <p className="text-[10px] uppercase tracking-[0.4em] text-gold">Contact</p>
           <h2 className="mt-4 font-display text-5xl">Start a project conversation.</h2>
           <div className="mt-10 space-y-4 text-sm text-ivory/70">
-            <a className="flex items-center gap-3 hover:text-gold" href="mailto:hello@mohannad.studio"><Mail className="h-4 w-4" /> hello@mohannad.studio</a>
-            <a className="flex items-center gap-3 hover:text-gold" href="tel:+200000000000"><Phone className="h-4 w-4" /> Available on request</a>
+            <a className="flex items-center gap-3 hover:text-gold" href={`mailto:${contact.email}`}><Mail className="h-4 w-4" /> {contact.email}</a>
+            <a className="flex items-center gap-3 hover:text-gold" href={`tel:${contact.phoneHref}`}><Phone className="h-4 w-4" /> {contact.phone}</a>
+            <a className="flex items-center gap-3 hover:text-gold" href={contact.instagram} target="_blank" rel="noreferrer"><Instagram className="h-4 w-4" /> Instagram</a>
             <span className="flex items-center gap-3"><MessageCircle className="h-4 w-4" /> Architectural portfolio inquiries</span>
           </div>
         </div>
@@ -196,4 +203,24 @@ function Contact() {
       </div>
     </section>
   );
+}
+
+const defaultContactInfo = {
+  email: "mohandelnady33@gmail.com",
+  phone: "+20 101 151 7780",
+  phoneHref: "+201011517780",
+  instagram: "https://www.instagram.com/muhvnd?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
+};
+
+async function fetchPublicContactInfo() {
+  const { data, error } = await supabase.from("contact_info").select("email, phone, whatsapp, linkedin").eq("id", 1).maybeSingle();
+  if (error || !data) return defaultContactInfo;
+
+  const phone = data.phone || data.whatsapp || defaultContactInfo.phone;
+  return {
+    email: data.email || defaultContactInfo.email,
+    phone,
+    phoneHref: phone.replace(/[^\d+]/g, ""),
+    instagram: data.linkedin || defaultContactInfo.instagram,
+  };
 }

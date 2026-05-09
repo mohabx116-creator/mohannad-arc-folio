@@ -316,6 +316,43 @@ set value = excluded.value,
     type = excluded.type,
     updated_at = now();
 
+create table if not exists public.contact_info (
+  id int primary key default 1,
+  email text,
+  phone text,
+  whatsapp text,
+  linkedin text,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.contact_info enable row level security;
+
+drop policy if exists "public read contact" on public.contact_info;
+drop policy if exists "admin write contact" on public.contact_info;
+create policy "public read contact"
+on public.contact_info for select
+using (true);
+create policy "admin write contact"
+on public.contact_info for all
+using (public.is_admin())
+with check (public.is_admin());
+
+insert into public.contact_info (id, email, phone, whatsapp, linkedin, updated_at)
+values (
+  1,
+  'mohandelnady33@gmail.com',
+  '+20 101 151 7780',
+  '+20 101 151 7780',
+  'https://www.instagram.com/muhvnd?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==',
+  now()
+)
+on conflict (id) do update
+set email = excluded.email,
+    phone = excluded.phone,
+    whatsapp = excluded.whatsapp,
+    linkedin = excluded.linkedin,
+    updated_at = now();
+
 with upsert_project as (
   insert into public.projects (
     title,
