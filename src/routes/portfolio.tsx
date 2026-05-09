@@ -290,8 +290,8 @@ function Projects({ items }: { items: typeof fallback.projects }) {
           const slug = (p as { slug?: string }).slug;
           const featured = (p as { featured?: boolean }).featured;
           const Wrapper = ({ children }: { children: React.ReactNode }) =>
-            slug ? (
-              <Link to="/projects/$slug" params={{ slug }} className="block">{children}</Link>
+            slug === "al-se7r-tower" ? (
+              <Link to="/projects/al-se7r-tower" className="block">{children}</Link>
             ) : (
               <div>{children}</div>
             );
