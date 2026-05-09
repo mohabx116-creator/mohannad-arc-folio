@@ -82,14 +82,23 @@ export default function Admin() {
   const [emailLoginError, setEmailLoginError] = useState("");
   const [emailLogin, setEmailLogin] = useState({ email: "", password: "" });
 
-  async function recheckAccess() {
-    setAuth({ status: "loading" });
-    setAuth(await resolveAdminAuth());
+  async function recheckAccess(showLoading = true) {
+    if (showLoading) setAuth({ status: "loading" });
+    try {
+      setAuth(await resolveAdminAuth());
+    } catch (error) {
+      setAuth({
+        status: "auth_error",
+        setupError: error instanceof Error ? error.message : "Unable to verify admin access.",
+      });
+    }
   }
 
   useEffect(() => {
     recheckAccess();
-    const { data: sub } = supabase.auth.onAuthStateChange(() => recheckAccess());
+    const { data: sub } = supabase.auth.onAuthStateChange(() => {
+      window.setTimeout(() => recheckAccess(false), 0);
+    });
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -123,6 +132,31 @@ export default function Admin() {
 
   if (auth.status === "loading") {
     return <Shell><p className="px-6 py-24 text-center text-sm text-ivory/60">Verifying admin access...</p></Shell>;
+  }
+
+  if (auth.status === "auth_error") {
+    return (
+      <Shell>
+        <section className="mx-auto max-w-xl px-6 py-24 text-center">
+          <h1 className="font-display text-5xl">Admin Check Failed</h1>
+          <p className="mt-4 text-sm leading-relaxed text-ivory/60">
+            The CMS could not finish verifying admin access. This usually means Supabase environment variables,
+            network access, or auth/RLS setup needs attention.
+          </p>
+          {auth.setupError && <p className="mt-5 break-words text-xs leading-relaxed text-gold/80">{auth.setupError}</p>}
+          <div className="mt-8 border border-ivory/10 bg-ivory/[0.03] p-5 text-left text-xs leading-relaxed text-ivory/65">
+            <p><span className="text-gold">Failed step:</span> {auth.failedStep ?? "Unknown"}</p>
+            <p className="mt-2 break-all"><span className="text-gold">Email:</span> {auth.email ?? "Not available"}</p>
+            <p className="mt-2 break-all"><span className="text-gold">User ID:</span> {auth.userId ?? "Not available"}</p>
+            <p className="mt-2"><span className="text-gold">Suggested fix:</span> {auth.suggestedFix ?? "Check Supabase Auth, user_roles, and RLS policies."}</p>
+          </div>
+          <div className="mt-8 flex justify-center gap-3">
+            <button onClick={() => recheckAccess()} className="bg-ivory px-6 py-3 text-[10px] uppercase tracking-[0.3em] text-onyx hover:bg-gold">Retry</button>
+            <button onClick={signOut} className="border border-ivory/25 px-6 py-3 text-[10px] uppercase tracking-[0.3em] hover:border-gold hover:text-gold">Logout</button>
+          </div>
+        </section>
+      </Shell>
+    );
   }
 
   if (auth.status === "login_required") {
