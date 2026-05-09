@@ -1,14 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { motion } from "framer-motion";
 import { ArrowRight, Lock } from "lucide-react";
-import heroImg from "@/assets/hero.jpg";
+import { alSe7r } from "@/lib/al-se7r-data";
 
 export const Route = createFileRoute("/")({
   component: Landing,
   head: () => ({
     meta: [
-      { title: "Mohannad El Nady — Architectural & Interior Design Studio" },
-      { name: "description", content: "Enter the portfolio of Mohannad Mohamed El Nady — luxury architectural and interior design from Egypt." },
+      { title: "Mohannad Architectural Portfolio - Al Se7r Tower" },
+      { name: "description", content: "A luxury architectural portfolio centered on the Al Se7r Tower mixed-use case study." },
     ],
   }),
 });
@@ -19,7 +19,7 @@ function Landing() {
       {/* Background image */}
       <div className="absolute inset-0">
         <img
-          src={heroImg}
+          src={alSe7r.hero}
           alt=""
           className="h-full w-full object-cover opacity-60"
           width={1920}
@@ -39,7 +39,7 @@ function Landing() {
         >
           <span className="text-gold font-display text-2xl">M</span>
           <span className="hidden text-[10px] uppercase tracking-[0.4em] text-ivory/70 sm:block">
-            El Nady · Studio
+            El Nady Studio
           </span>
         </motion.div>
         <motion.div
@@ -48,7 +48,7 @@ function Landing() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="text-[10px] uppercase tracking-[0.4em] text-ivory/60"
         >
-          Egypt · Est. 2024
+          Architectural Portfolio
         </motion.div>
       </header>
 
@@ -60,7 +60,7 @@ function Landing() {
           transition={{ duration: 1, delay: 0.6 }}
           className="text-[11px] uppercase tracking-[0.5em] text-gold"
         >
-          Architectural Engineering · Interior Design
+          Architectural Engineering / Mixed-Use Design
         </motion.p>
 
         <motion.h1
@@ -71,7 +71,7 @@ function Landing() {
         >
           Mohannad
           <br />
-          <span className="italic text-gold-soft">Mohamed El Nady</span>
+          <span className="italic text-gold-soft">Architectural Portfolio</span>
         </motion.h1>
 
         <motion.div
@@ -87,8 +87,7 @@ function Landing() {
           transition={{ duration: 1, delay: 1.7 }}
           className="mt-10 max-w-xl text-sm leading-relaxed text-ivory/75 md:text-base"
         >
-          A studio practice exploring the dialogue between materiality, light, and proportion —
-          from refined residential interiors to architectural facades.
+          A focused architectural portfolio led by Al Se7r Tower, a mixed-use mall and tower development documented through planning, sections, elevations, renders, and final boards.
         </motion.p>
 
         {/* CTA buttons */}
@@ -102,7 +101,7 @@ function Landing() {
             to="/portfolio"
             className="group inline-flex items-center justify-center gap-3 bg-ivory px-8 py-4 text-[11px] uppercase tracking-[0.35em] text-onyx transition-all hover:bg-gold"
           >
-            Enter Portfolio
+            View Portfolio
             <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
           </Link>
           <Link
@@ -122,9 +121,9 @@ function Landing() {
         transition={{ duration: 1, delay: 2.4 }}
         className="absolute bottom-6 left-0 right-0 z-10 flex items-center justify-between px-6 text-[10px] uppercase tracking-[0.4em] text-ivory/40 md:px-12"
       >
-        <span>Cairo · 10th of Ramadan</span>
-        <span className="hidden sm:block">Scroll · Discover · Engage</span>
-        <span>© {new Date().getFullYear()}</span>
+        <span>Egypt</span>
+        <span className="hidden sm:block">Al Se7r Tower Case Study</span>
+        <span>{new Date().getFullYear()}</span>
       </motion.footer>
     </main>
   );
