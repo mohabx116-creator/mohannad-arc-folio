@@ -222,7 +222,7 @@ function AssetCard({
     >
       <div
         className={`relative overflow-hidden border ${
-          isDrawing ? "border-ivory/15 bg-ivory" : "border-ivory/10 bg-onyx-soft"
+          isDrawing ? "border-ivory/15 bg-ivory" : "border-ivory/10 bg-card"
         }`}
       >
         <div
