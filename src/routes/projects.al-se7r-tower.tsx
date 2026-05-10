@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowUpRight, Download, Eye, FileText, X, ZoomIn } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PreferenceControls } from "@/components/preference-controls";
 import {
@@ -105,6 +104,10 @@ function CaseStudy() {
         <img
           src={project.hero}
           alt="Al Se7r Tower exterior render"
+          width={1920}
+          height={1080}
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover opacity-65"
         />
         <div
@@ -112,29 +115,15 @@ function CaseStudy() {
         />
         <div className="absolute inset-0 grid-architectural opacity-50" />
         <div className="relative mx-auto flex min-h-[92vh] max-w-7xl flex-col justify-end px-6 pb-20 pt-28 md:px-12 md:pb-28">
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-[11px] uppercase tracking-[0.5em] text-gold"
-          >
+          <p className="text-[11px] uppercase tracking-[0.5em] text-gold reveal-up">
             {project.category}
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="mt-6 max-w-5xl font-display text-6xl leading-[0.92] md:text-8xl lg:text-9xl"
-          >
+          </p>
+          <h1 className="mt-6 max-w-5xl font-display text-6xl leading-[0.92] reveal-up delay-100 md:text-8xl lg:text-9xl">
             {project.title}
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.25 }}
-            className="mt-6 max-w-2xl text-lg leading-relaxed text-ivory/78 md:text-xl"
-          >
+          </h1>
+          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-ivory/78 reveal-fade delay-300 md:text-xl">
             {project.subtitle}
-          </motion.p>
+          </p>
         </div>
       </section>
 
@@ -221,16 +210,18 @@ function SectionBlock({
   index: number;
   onOpen: (asset: PortfolioAsset) => void;
 }) {
+  const { t } = useSitePreferences();
+  const { ref, isNear } = useNearViewport<HTMLElement>("700px");
+  const [showAll, setShowAll] = useState(false);
   const images = section.assets.filter((asset) => asset.type === "image");
   const documents = section.assets.filter((asset) => asset.type === "pdf");
+  const initialImageLimit = section.id === "visualization" ? 6 : images.length;
+  const visibleImages = showAll ? images : images.slice(0, initialImageLimit);
+  const hiddenImageCount = Math.max(images.length - visibleImages.length, 0);
+  const shouldRenderMedia = index === 1 || isNear;
 
   return (
-    <motion.section
-      initial={{ opacity: 0, y: 22 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      className="border-t border-ivory/10 py-18 md:py-24"
-    >
+    <section ref={ref} className="border-t border-ivory/10 py-18 md:py-24">
       <div className="grid gap-10 md:grid-cols-12">
         <aside className="md:col-span-4">
           <div className="sticky top-36">
@@ -249,9 +240,12 @@ function SectionBlock({
         </aside>
 
         <div className="space-y-7 md:col-span-8">
-          {images.length > 0 && (
-            <div className={images.length === 1 ? "grid gap-6" : "grid gap-6 sm:grid-cols-2"}>
-              {images.map((asset, assetIndex) => (
+          {images.length > 0 && !shouldRenderMedia && <MediaSkeleton />}
+          {images.length > 0 && shouldRenderMedia && (
+            <div
+              className={visibleImages.length === 1 ? "grid gap-6" : "grid gap-6 sm:grid-cols-2"}
+            >
+              {visibleImages.map((asset, assetIndex) => (
                 <ImageCard
                   key={asset.id}
                   asset={asset}
@@ -261,7 +255,16 @@ function SectionBlock({
               ))}
             </div>
           )}
-          {documents.length > 0 && (
+          {hiddenImageCount > 0 && shouldRenderMedia && (
+            <button
+              type="button"
+              onClick={() => setShowAll(true)}
+              className="border border-ivory/20 px-5 py-3 text-[10px] uppercase tracking-[0.25em] hover:border-gold hover:text-gold"
+            >
+              {t("loadMoreVisuals")} ({hiddenImageCount})
+            </button>
+          )}
+          {documents.length > 0 && shouldRenderMedia && (
             <div className="grid gap-5 sm:grid-cols-2">
               {documents.map((asset) => (
                 <PdfCard key={asset.id} asset={asset} />
@@ -270,7 +273,44 @@ function SectionBlock({
           )}
         </div>
       </div>
-    </motion.section>
+    </section>
+  );
+}
+
+function useNearViewport<T extends Element>(rootMargin = "500px") {
+  const ref = useRef<T | null>(null);
+  const [isNear, setIsNear] = useState(false);
+
+  useEffect(() => {
+    if (isNear) return;
+    const node = ref.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      setIsNear(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry?.isIntersecting) {
+          setIsNear(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [isNear, rootMargin]);
+
+  return { ref, isNear };
+}
+
+function MediaSkeleton() {
+  return (
+    <div className="grid gap-6 sm:grid-cols-2" aria-hidden="true">
+      <div className="aspect-[4/3] animate-pulse bg-ivory/[0.045]" />
+      <div className="aspect-[4/3] animate-pulse bg-ivory/[0.035]" />
+    </div>
   );
 }
 
@@ -295,9 +335,14 @@ function ImageCard({
         className={`relative overflow-hidden border border-ivory/10 bg-card ${priority ? "aspect-[16/10]" : "aspect-[4/3]"}`}
       >
         <img
-          src={asset.src}
+          src={asset.thumbnailUrl ?? asset.src}
           alt={asset.displayName}
           loading={priority ? "eager" : "lazy"}
+          fetchPriority={priority ? "high" : "auto"}
+          decoding="async"
+          width={priority ? 1600 : 900}
+          height={priority ? 1000 : 675}
+          sizes={priority ? "(min-width: 1024px) 66vw, 100vw" : "(min-width: 768px) 33vw, 100vw"}
           className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-onyx/70 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
@@ -313,6 +358,7 @@ function ImageCard({
 
 function PdfCard({ asset }: { asset: PortfolioAsset }) {
   const { t } = useSitePreferences();
+  const [preview, setPreview] = useState(false);
 
   return (
     <article className="group border border-ivory/12 bg-ivory/[0.035] transition-colors hover:border-gold/60">
@@ -322,15 +368,28 @@ function PdfCard({ asset }: { asset: PortfolioAsset }) {
             src={asset.thumbnailUrl}
             alt={asset.displayName}
             loading="lazy"
+            decoding="async"
+            width={900}
+            height={675}
+            sizes="(min-width: 768px) 33vw, 100vw"
             className="h-full w-full object-cover"
           />
-        ) : (
+        ) : preview ? (
           <iframe
             title={asset.displayName}
             src={`${asset.src}#page=1&toolbar=0&navpanes=0&scrollbar=0`}
             className="h-full w-full scale-[1.02]"
             loading="lazy"
           />
+        ) : (
+          <button
+            type="button"
+            onClick={() => setPreview(true)}
+            className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[#f4efe6] text-onyx/70 transition-colors hover:text-onyx"
+          >
+            <FileText className="h-8 w-8" />
+            <span className="text-[10px] uppercase tracking-[0.25em]">{t("pdfPreview")}</span>
+          </button>
         )}
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-onyx/10 via-transparent to-transparent ring-1 ring-inset ring-onyx/10" />
         <div className="absolute left-3 top-3 bg-onyx/85 px-3 py-1.5 text-[10px] uppercase tracking-[0.25em] text-ivory">
@@ -355,6 +414,15 @@ function PdfCard({ asset }: { asset: PortfolioAsset }) {
           >
             <Eye className="h-3.5 w-3.5" /> {t("viewPdf")}
           </a>
+          {!preview && !asset.thumbnailUrl && (
+            <button
+              type="button"
+              onClick={() => setPreview(true)}
+              className="inline-flex items-center gap-2 border border-ivory/20 px-4 py-2 text-[10px] uppercase tracking-[0.25em] hover:border-gold hover:text-gold"
+            >
+              <FileText className="h-3.5 w-3.5" /> {t("pdfPreview")}
+            </button>
+          )}
           <a
             href={asset.src}
             download
@@ -372,40 +440,33 @@ function Lightbox({ asset, onClose }: { asset: PortfolioAsset | null; onClose: (
   const { t } = useSitePreferences();
 
   return (
-    <AnimatePresence>
-      {asset?.type === "image" && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-onyx/95 p-4 backdrop-blur-sm md:p-10"
+    asset?.type === "image" && (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-onyx/95 p-4 backdrop-blur-sm md:p-10"
+        onClick={onClose}
+      >
+        <button
           onClick={onClose}
+          className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center border border-ivory/20 hover:border-gold hover:text-gold"
+          aria-label={t("close")}
         >
-          <button
-            onClick={onClose}
-            className="absolute right-4 top-4 flex h-11 w-11 items-center justify-center border border-ivory/20 hover:border-gold hover:text-gold"
-            aria-label={t("close")}
-          >
-            <X className="h-4 w-4" />
-          </button>
-          <motion.div
-            initial={{ scale: 0.97, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.97, opacity: 0 }}
-            className="max-h-[88vh] max-w-[92vw]"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <img
-              src={asset.src}
-              alt={asset.displayName}
-              className="block max-h-[80vh] max-w-[88vw] object-contain"
-            />
-            <p className="mt-4 text-center text-[10px] uppercase tracking-[0.35em] text-gold">
-              {asset.displayName}
-            </p>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          <X className="h-4 w-4" />
+        </button>
+        <div
+          className="max-h-[88vh] max-w-[92vw] animate-scale-in"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <img
+            src={asset.src}
+            alt={asset.displayName}
+            decoding="async"
+            className="block max-h-[80vh] max-w-[88vw] object-contain"
+          />
+          <p className="mt-4 text-center text-[10px] uppercase tracking-[0.35em] text-gold">
+            {asset.displayName}
+          </p>
+        </div>
+      </div>
+    )
   );
 }

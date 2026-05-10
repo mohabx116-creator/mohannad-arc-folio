@@ -1,7 +1,17 @@
 import { supabase } from "@/integrations/supabase/client";
-import { alSe7r, type CaseStudySection, type PortfolioAsset, type PortfolioProject } from "@/lib/al-se7r-data";
+import {
+  alSe7r,
+  type CaseStudySection,
+  type PortfolioAsset,
+  type PortfolioProject,
+} from "@/lib/al-se7r-data";
 
-const db = supabase as any;
+type SupabaseQueryClient = {
+  from: typeof supabase.from;
+};
+
+const db = supabase as SupabaseQueryClient;
+let publicAlSe7rProjectPromise: Promise<PortfolioProject | null> | null = null;
 
 type ProjectDb = {
   id: string;
@@ -50,38 +60,69 @@ type AssetDb = {
 };
 
 export async function fetchPublishedAlSe7rProject(): Promise<PortfolioProject | null> {
+  publicAlSe7rProjectPromise ??= fetchPublishedAlSe7rProjectUncached();
+  return publicAlSe7rProjectPromise;
+}
+
+async function fetchPublishedAlSe7rProjectUncached(): Promise<PortfolioProject | null> {
   const { data: project, error: projectError } = await db
     .from("projects")
-    .select("*")
+    .select(
+      "id, slug, title, subtitle, category, short_description, long_description, cover_image, hero_asset_id, cover_asset_id, is_featured, is_published, display_order, metadata",
+    )
     .eq("slug", "al-se7r-tower")
+    .eq("is_published", true)
     .maybeSingle();
 
   if (projectError) return alSe7r;
   if (!project) return null;
 
-  const [{ data: sections, error: sectionsError }, { data: assets, error: assetsError }] = await Promise.all([
-    db.from("portfolio_sections").select("*").eq("project_id", project.id).order("display_order"),
-    db.from("portfolio_assets").select("*").eq("project_id", project.id).order("display_order"),
-  ]);
+  const [{ data: sections, error: sectionsError }, { data: assets, error: assetsError }] =
+    await Promise.all([
+      db
+        .from("portfolio_sections")
+        .select("id, title, subtitle, description, category, is_published, display_order")
+        .eq("project_id", project.id)
+        .eq("is_published", true)
+        .order("display_order"),
+      db
+        .from("portfolio_assets")
+        .select(
+          "id, section_id, storage_path, file_url, original_filename, display_name, caption, asset_type, mime_type, file_size, category, metadata, is_hero, is_cover, is_published, display_order",
+        )
+        .eq("project_id", project.id)
+        .eq("is_published", true)
+        .order("display_order"),
+    ]);
 
   if (sectionsError || assetsError) return alSe7r;
 
   return mapProject(project, sections, assets ?? []);
 }
 
-function mapProject(project: ProjectDb, sections: SectionDb[], assets: AssetDb[]): PortfolioProject {
+function mapProject(
+  project: ProjectDb,
+  sections: SectionDb[],
+  assets: AssetDb[],
+): PortfolioProject {
   const mappedAssets = assets.map(mapAsset);
-  const visualAssets = mappedAssets.filter(isVisualAsset).sort((a, b) => visualRank(a) - visualRank(b) || a.order - b.order);
+  const visualAssets = mappedAssets
+    .filter(isVisualAsset)
+    .sort((a, b) => visualRank(a) - visualRank(b) || a.order - b.order);
   const anyAsset = mappedAssets.find((asset) => asset.type === "image") ?? mappedAssets[0];
   const selectedHeroAsset = mappedAssets.find((asset) => asset.id === project.hero_asset_id);
   const selectedCoverAsset = mappedAssets.find((asset) => asset.id === project.cover_asset_id);
   const heroAsset =
-    (selectedHeroAsset && (isVisualAsset(selectedHeroAsset) || visualAssets.length === 0) ? selectedHeroAsset : undefined) ??
+    (selectedHeroAsset && (isVisualAsset(selectedHeroAsset) || visualAssets.length === 0)
+      ? selectedHeroAsset
+      : undefined) ??
     mappedAssets.find((asset) => asset.isHero && isVisualAsset(asset)) ??
     visualAssets[0] ??
     anyAsset;
   const coverAsset =
-    (selectedCoverAsset && (isVisualAsset(selectedCoverAsset) || visualAssets.length === 0) ? selectedCoverAsset : undefined) ??
+    (selectedCoverAsset && (isVisualAsset(selectedCoverAsset) || visualAssets.length === 0)
+      ? selectedCoverAsset
+      : undefined) ??
     mappedAssets.find((asset) => asset.isCover && isVisualAsset(asset)) ??
     visualAssets[0] ??
     anyAsset;
@@ -136,10 +177,17 @@ function mapAsset(asset: AssetDb): PortfolioAsset {
     storagePath: asset.storage_path,
     displayName: asset.display_name,
     caption: asset.caption ?? "",
-    type: asset.asset_type === "pdf" ? "pdf" : asset.mime_type?.startsWith("image/") || ["image", "render", "poster", "board"].includes(asset.asset_type) ? "image" : "file",
+    type:
+      asset.asset_type === "pdf"
+        ? "pdf"
+        : asset.mime_type?.startsWith("image/") ||
+            ["image", "render", "poster", "board"].includes(asset.asset_type)
+          ? "image"
+          : "file",
     mimeType: asset.mime_type ?? "",
     fileSize: asset.file_size ?? undefined,
-    thumbnailUrl: typeof asset.metadata?.thumbnail_url === "string" ? asset.metadata.thumbnail_url : undefined,
+    thumbnailUrl:
+      typeof asset.metadata?.thumbnail_url === "string" ? asset.metadata.thumbnail_url : undefined,
     category: asset.category ?? asset.asset_type,
     sectionId: asset.section_id ?? "",
     isHero: asset.is_hero === true,

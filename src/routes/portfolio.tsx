@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
 import {
   ArrowLeft,
   ArrowRight,
@@ -100,6 +99,10 @@ function Portfolio() {
         <img
           src={project.cover}
           alt="Al Se7r Tower final presentation board"
+          width={1920}
+          height={1080}
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 h-full w-full object-cover opacity-35"
         />
         <div
@@ -107,21 +110,12 @@ function Portfolio() {
         />
         <div className="relative mx-auto grid max-w-7xl gap-12 px-6 py-24 md:grid-cols-12 md:px-12 md:py-32">
           <div className="md:col-span-8">
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="text-[11px] uppercase tracking-[0.5em] text-gold"
-            >
+            <p className="text-[11px] uppercase tracking-[0.5em] text-gold reveal-up">
               {t("mohannadPortfolio")}
-            </motion.p>
-            <motion.h1
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="mt-7 font-display text-6xl leading-[0.95] md:text-8xl"
-            >
+            </p>
+            <h1 className="mt-7 font-display text-6xl leading-[0.95] reveal-up delay-100 md:text-8xl">
               {t("featuredCaseStudy")}
-            </motion.h1>
+            </h1>
             <p className="mt-7 max-w-2xl text-lg leading-relaxed text-ivory/75">
               {project.longDescription}
             </p>
@@ -185,6 +179,11 @@ function Portfolio() {
               <img
                 src={project.hero}
                 alt="Al Se7r Tower exterior render"
+                loading="lazy"
+                decoding="async"
+                width={1600}
+                height={1000}
+                sizes="(min-width: 1024px) 66vw, 100vw"
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-[1.035]"
               />
             </div>
@@ -337,7 +336,14 @@ const defaultContactInfo = {
     "https://www.instagram.com/muhvnd?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==",
 };
 
+let publicContactInfoPromise: Promise<typeof defaultContactInfo> | null = null;
+
 async function fetchPublicContactInfo() {
+  publicContactInfoPromise ??= fetchPublicContactInfoUncached();
+  return publicContactInfoPromise;
+}
+
+async function fetchPublicContactInfoUncached() {
   const { data, error } = await supabase
     .from("contact_info")
     .select("email, phone, whatsapp, linkedin")
