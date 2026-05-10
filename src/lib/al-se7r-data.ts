@@ -49,8 +49,19 @@ export type PortfolioProject = {
 };
 
 const archive = "/portfolio/alse7r/archive";
+const heroPreview = `${archive}/renders/optimized/exterior-render-01-1184-q75.jpg`;
+const heroPreviewSmall = `${archive}/renders/optimized/exterior-render-01-900-q75.jpg`;
+const coverPreview = `${archive}/poster/optimized/final-presentation-board-1200-q75.jpg`;
+const coverPreviewSmall = `${archive}/poster/optimized/final-presentation-board-900-q75.jpg`;
 
-const pdf = (sectionId: string, order: number, file: string, displayName: string, caption: string, category = "plan"): PortfolioAsset => ({
+const pdf = (
+  sectionId: string,
+  order: number,
+  file: string,
+  displayName: string,
+  caption: string,
+  category = "plan",
+): PortfolioAsset => ({
   id: `${sectionId}-${file.replace(".pdf", "")}`,
   src: `${archive}/technical-drawings/${file}`,
   originalUrl: `${archive}/technical-drawings/${file}`,
@@ -66,7 +77,14 @@ const pdf = (sectionId: string, order: number, file: string, displayName: string
   published: true,
 });
 
-const image = (sectionId: string, order: number, path: string, displayName: string, caption: string, category = "render"): PortfolioAsset => ({
+const image = (
+  sectionId: string,
+  order: number,
+  path: string,
+  displayName: string,
+  caption: string,
+  category = "render",
+): PortfolioAsset => ({
   id: `${sectionId}-${path.replace(/[/.]/g, "-")}`,
   src: `${archive}/${path}`,
   originalUrl: `${archive}/${path}`,
@@ -120,15 +138,19 @@ export const alSe7r: PortfolioProject = {
     "A complete mixed-use commercial and hospitality development presented through planning, technical documentation, elevations, sections, visualizations, and final presentation boards.",
   longDescription:
     "Al Se7r Tower is a mixed-use architectural development combining retail, hospitality, office, business incubation, parking, and tower functions within a coordinated commercial complex. The project explores the relationship between public movement, commercial visibility, vertical circulation, workplace flexibility, and hospitality planning.",
-  hero: `${archive}/renders/exterior-render-01.png`,
-  cover: `${archive}/poster/final-presentation-board.jpg`,
+  hero: heroPreview,
+  cover: coverPreview,
   isFeatured: true,
   isPublished: true,
   displayOrder: 1,
   metadata: [
     { label: "Project Type", value: "Mixed-Use Commercial Development" },
     { label: "Category", value: "Mixed-Use Architecture / Commercial Design" },
-    { label: "Scope", value: "Planning, technical documentation, elevations, sections, visualization, and final presentation." },
+    {
+      label: "Scope",
+      value:
+        "Planning, technical documentation, elevations, sections, visualization, and final presentation.",
+    },
     { label: "Content Source", value: "Imported project archive" },
   ],
   sections: [
@@ -142,8 +164,29 @@ export const alSe7r: PortfolioProject = {
       description:
         "A complete mixed-use commercial and hospitality development presented through planning, technical documentation, elevations, sections, visualizations, and final presentation boards.",
       assets: [
-        { ...image("overview", 1, "renders/exterior-render-01.png", "Exterior Render", "The tower and podium composition presented as the main project image."), isHero: true },
-        { ...image("overview", 2, "poster/final-presentation-board.jpg", "Final Presentation Board", "Consolidated final board for the Al Se7r Tower case study.", "poster"), isCover: true },
+        {
+          ...image(
+            "overview",
+            1,
+            "renders/exterior-render-01.png",
+            "Exterior Render",
+            "The tower and podium composition presented as the main project image.",
+          ),
+          thumbnailUrl: heroPreviewSmall,
+          isHero: true,
+        },
+        {
+          ...image(
+            "overview",
+            2,
+            "poster/final-presentation-board.jpg",
+            "Final Presentation Board",
+            "Consolidated final board for the Al Se7r Tower case study.",
+            "poster",
+          ),
+          thumbnailUrl: coverPreviewSmall,
+          isCover: true,
+        },
       ],
     },
     {
@@ -156,8 +199,20 @@ export const alSe7r: PortfolioProject = {
       description:
         "This section presents the project's site organization, ground-floor access, public movement, outdoor circulation, parking relationship, commercial frontage, and connection between exterior arrival zones and internal retail movement.",
       assets: [
-        pdf("master-planning", 1, "site-plan.pdf", "Site Plan", "Site organization, outdoor circulation, parking relationship, and commercial frontage."),
-        pdf("master-planning", 2, "ground-floor-plan.pdf", "Ground Floor Retail & Access Strategy", "Ground-floor access, arrival sequence, and internal retail movement."),
+        pdf(
+          "master-planning",
+          1,
+          "site-plan.pdf",
+          "Site Plan",
+          "Site organization, outdoor circulation, parking relationship, and commercial frontage.",
+        ),
+        pdf(
+          "master-planning",
+          2,
+          "ground-floor-plan.pdf",
+          "Ground Floor Retail & Access Strategy",
+          "Ground-floor access, arrival sequence, and internal retail movement.",
+        ),
       ],
     },
     {
@@ -170,7 +225,14 @@ export const alSe7r: PortfolioProject = {
       description:
         "This section presents the basement planning strategy, including parking organization, vehicular circulation, ramp access, service zones, and vertical core connectivity.",
       assets: [
-        pdf("basement", 1, "basement-parking-plan.pdf", "Basement Plan", "Parking organization, vehicular circulation, ramp access, and service zones.", "plan"),
+        pdf(
+          "basement",
+          1,
+          "basement-parking-plan.pdf",
+          "Basement Plan",
+          "Parking organization, vehicular circulation, ramp access, and service zones.",
+          "plan",
+        ),
       ],
     },
     {
@@ -183,8 +245,20 @@ export const alSe7r: PortfolioProject = {
       description:
         "This section presents the mall planning system, including retail unit distribution, public circulation, vertical cores, commercial visibility, tenant flexibility, and shared facilities.",
       assets: [
-        pdf("commercial-mall", 1, "mall-first-floor-plan.pdf", "Mall First Floor Plan", "Retail unit distribution and public circulation at the first mall level."),
-        pdf("commercial-mall", 2, "mall-second-floor-plan.pdf", "Mall Second Floor Plan", "Upper mall planning, tenant flexibility, and vertical core relationships."),
+        pdf(
+          "commercial-mall",
+          1,
+          "mall-first-floor-plan.pdf",
+          "Mall First Floor Plan",
+          "Retail unit distribution and public circulation at the first mall level.",
+        ),
+        pdf(
+          "commercial-mall",
+          2,
+          "mall-second-floor-plan.pdf",
+          "Mall Second Floor Plan",
+          "Upper mall planning, tenant flexibility, and vertical core relationships.",
+        ),
       ],
     },
     {
@@ -197,8 +271,20 @@ export const alSe7r: PortfolioProject = {
       description:
         "This section presents the hospitality layer of the project, including hotel planning, guest-room organization, restaurant layout, seating zones, kitchen/service relationships, and guest circulation.",
       assets: [
-        pdf("hospitality", 1, "hotel-floor-plan.pdf", "Hotel Floor Plan", "Guest-room organization, service relationships, and hotel circulation."),
-        pdf("hospitality", 2, "hotel-restaurant-plan.pdf", "Hotel Restaurant Plan", "Restaurant seating zones, kitchen/service flow, and guest movement."),
+        pdf(
+          "hospitality",
+          1,
+          "hotel-floor-plan.pdf",
+          "Hotel Floor Plan",
+          "Guest-room organization, service relationships, and hotel circulation.",
+        ),
+        pdf(
+          "hospitality",
+          2,
+          "hotel-restaurant-plan.pdf",
+          "Hotel Restaurant Plan",
+          "Restaurant seating zones, kitchen/service flow, and guest movement.",
+        ),
       ],
     },
     {
@@ -211,8 +297,20 @@ export const alSe7r: PortfolioProject = {
       description:
         "This section presents the workplace layer of the project, including business incubators, office units, shared workspaces, meeting areas, lounge spaces, service cores, and flexible workplace planning.",
       assets: [
-        pdf("workplace", 1, "business-incubator-floor-plan.pdf", "Business Incubator Floor Plan", "Flexible workspaces, shared facilities, meeting areas, and service core planning."),
-        pdf("workplace", 2, "large-companies-floor-plan.pdf", "Large Companies Floor Plan", "Office planning for larger company floor plates and shared workplace support."),
+        pdf(
+          "workplace",
+          1,
+          "business-incubator-floor-plan.pdf",
+          "Business Incubator Floor Plan",
+          "Flexible workspaces, shared facilities, meeting areas, and service core planning.",
+        ),
+        pdf(
+          "workplace",
+          2,
+          "large-companies-floor-plan.pdf",
+          "Large Companies Floor Plan",
+          "Office planning for larger company floor plates and shared workplace support.",
+        ),
       ],
     },
     {
@@ -225,17 +323,94 @@ export const alSe7r: PortfolioProject = {
       description:
         "This section presents the architectural expression, facade studies, vertical relationships, sectional logic, core organization, tower-to-mall relationship, and overall building composition.",
       assets: [
-        pdf("elevations-sections", 1, "main-elevation.pdf", "Main Elevation", "Primary facade composition and commercial podium expression.", "elevation"),
-        pdf("elevations-sections", 2, "secondary-elevation.pdf", "Secondary Elevation", "Secondary facade rhythm, massing, and architectural articulation.", "elevation"),
-        pdf("elevations-sections", 3, "core-section.pdf", "Core Section", "Vertical core organization and circulation relationships.", "section"),
-        pdf("elevations-sections", 4, "mall-section.pdf", "Mall Section", "Sectional reading of the mall volume and public spaces.", "section"),
-        pdf("elevations-sections", 5, "tower-mall-section.pdf", "Tower & Mall Section", "Relationship between tower, mall, cores, and podium levels.", "section"),
-        image("elevations-sections", 6, "elevations/elevation-study-01.png", "Facade Study I", "Facade proportion and commercial frontage study.", "elevation"),
-        image("elevations-sections", 7, "elevations/elevation-study-02.png", "Facade Study II", "Tower elevation rhythm and facade massing study.", "elevation"),
-        image("elevations-sections", 8, "elevations/elevation-study-03.png", "Facade Study III", "Podium-to-tower visual relationship study.", "elevation"),
-        image("elevations-sections", 9, "elevations/elevation-study-04.png", "Facade Study IV", "Facade articulation and vertical composition study.", "elevation"),
-        image("elevations-sections", 10, "elevations/elevation-study-05.png", "Facade Study V", "Commercial identity and tower expression study.", "elevation"),
-        image("elevations-sections", 11, "elevations/elevation-study-06.png", "Facade Study VI", "Final facade atmosphere and massing study.", "elevation"),
+        pdf(
+          "elevations-sections",
+          1,
+          "main-elevation.pdf",
+          "Main Elevation",
+          "Primary facade composition and commercial podium expression.",
+          "elevation",
+        ),
+        pdf(
+          "elevations-sections",
+          2,
+          "secondary-elevation.pdf",
+          "Secondary Elevation",
+          "Secondary facade rhythm, massing, and architectural articulation.",
+          "elevation",
+        ),
+        pdf(
+          "elevations-sections",
+          3,
+          "core-section.pdf",
+          "Core Section",
+          "Vertical core organization and circulation relationships.",
+          "section",
+        ),
+        pdf(
+          "elevations-sections",
+          4,
+          "mall-section.pdf",
+          "Mall Section",
+          "Sectional reading of the mall volume and public spaces.",
+          "section",
+        ),
+        pdf(
+          "elevations-sections",
+          5,
+          "tower-mall-section.pdf",
+          "Tower & Mall Section",
+          "Relationship between tower, mall, cores, and podium levels.",
+          "section",
+        ),
+        image(
+          "elevations-sections",
+          6,
+          "elevations/elevation-study-01.png",
+          "Facade Study I",
+          "Facade proportion and commercial frontage study.",
+          "elevation",
+        ),
+        image(
+          "elevations-sections",
+          7,
+          "elevations/elevation-study-02.png",
+          "Facade Study II",
+          "Tower elevation rhythm and facade massing study.",
+          "elevation",
+        ),
+        image(
+          "elevations-sections",
+          8,
+          "elevations/elevation-study-03.png",
+          "Facade Study III",
+          "Podium-to-tower visual relationship study.",
+          "elevation",
+        ),
+        image(
+          "elevations-sections",
+          9,
+          "elevations/elevation-study-04.png",
+          "Facade Study IV",
+          "Facade articulation and vertical composition study.",
+          "elevation",
+        ),
+        image(
+          "elevations-sections",
+          10,
+          "elevations/elevation-study-05.png",
+          "Facade Study V",
+          "Commercial identity and tower expression study.",
+          "elevation",
+        ),
+        image(
+          "elevations-sections",
+          11,
+          "elevations/elevation-study-06.png",
+          "Facade Study VI",
+          "Final facade atmosphere and massing study.",
+          "elevation",
+        ),
       ],
     },
     {
@@ -248,16 +423,86 @@ export const alSe7r: PortfolioProject = {
       description:
         "This section presents the project's final visual communication, including rendered views, rendered plans, presentation boards, and selected atmospheric shots.",
       assets: [
-        image("visualization", 1, "renders/exterior-render-02.png", "Exterior Render I", "Exterior view emphasizing the tower and commercial podium.", "render"),
-        image("visualization", 2, "renders/exterior-render-03.png", "Exterior Render II", "Arrival and frontage atmosphere.", "render"),
-        image("visualization", 3, "renders/exterior-render-04.png", "Exterior Render III", "Commercial frontage and public realm view.", "render"),
-        image("visualization", 4, "renders/exterior-render-05.png", "Exterior Render IV", "Evening view and tower presence.", "render"),
-        image("visualization", 5, "renders/atmospheric-backdrop.png", "Atmospheric View", "Selected atmosphere image used for presentation context.", "render"),
-        image("visualization", 6, "rendered-plans/rendered-plan-01.png", "Rendered Plan I", "Rendered planning sheet for spatial communication.", "rendered-plan"),
-        image("visualization", 7, "rendered-plans/rendered-plan-02.png", "Rendered Plan II", "Rendered planning sheet showing program and movement.", "rendered-plan"),
-        image("visualization", 8, "rendered-plans/rendered-plan-03.png", "Rendered Plan III", "Rendered planning sheet for presentation sequence.", "rendered-plan"),
-        image("visualization", 9, "rendered-plans/rendered-plan-04.png", "Rendered Plan IV", "Rendered planning sheet emphasizing program hierarchy.", "rendered-plan"),
-        image("visualization", 10, "poster/final-presentation-board.jpg", "Final Presentation Board", "Final presentation board imported from the project archive.", "poster"),
+        image(
+          "visualization",
+          1,
+          "renders/exterior-render-02.png",
+          "Exterior Render I",
+          "Exterior view emphasizing the tower and commercial podium.",
+          "render",
+        ),
+        image(
+          "visualization",
+          2,
+          "renders/exterior-render-03.png",
+          "Exterior Render II",
+          "Arrival and frontage atmosphere.",
+          "render",
+        ),
+        image(
+          "visualization",
+          3,
+          "renders/exterior-render-04.png",
+          "Exterior Render III",
+          "Commercial frontage and public realm view.",
+          "render",
+        ),
+        image(
+          "visualization",
+          4,
+          "renders/exterior-render-05.png",
+          "Exterior Render IV",
+          "Evening view and tower presence.",
+          "render",
+        ),
+        image(
+          "visualization",
+          5,
+          "renders/atmospheric-backdrop.png",
+          "Atmospheric View",
+          "Selected atmosphere image used for presentation context.",
+          "render",
+        ),
+        image(
+          "visualization",
+          6,
+          "rendered-plans/rendered-plan-01.png",
+          "Rendered Plan I",
+          "Rendered planning sheet for spatial communication.",
+          "rendered-plan",
+        ),
+        image(
+          "visualization",
+          7,
+          "rendered-plans/rendered-plan-02.png",
+          "Rendered Plan II",
+          "Rendered planning sheet showing program and movement.",
+          "rendered-plan",
+        ),
+        image(
+          "visualization",
+          8,
+          "rendered-plans/rendered-plan-03.png",
+          "Rendered Plan III",
+          "Rendered planning sheet for presentation sequence.",
+          "rendered-plan",
+        ),
+        image(
+          "visualization",
+          9,
+          "rendered-plans/rendered-plan-04.png",
+          "Rendered Plan IV",
+          "Rendered planning sheet emphasizing program hierarchy.",
+          "rendered-plan",
+        ),
+        image(
+          "visualization",
+          10,
+          "poster/final-presentation-board.jpg",
+          "Final Presentation Board",
+          "Final presentation board imported from the project archive.",
+          "poster",
+        ),
         finalPresentationPdf,
       ],
     },

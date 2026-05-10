@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Lock } from "lucide-react";
 import { PreferenceControls } from "@/components/preference-controls";
 import { alSe7r } from "@/lib/al-se7r-data";
+import { getPreviewSrcSet } from "@/lib/image-delivery";
 import { useSitePreferences } from "@/lib/site-preferences";
 
 export const Route = createFileRoute("/")({
@@ -28,10 +29,12 @@ function Landing() {
       <div className="absolute inset-0">
         <img
           src={alSe7r.hero}
+          srcSet={getPreviewSrcSet(alSe7r.hero, [900, 1184])}
+          sizes="100vw"
           alt=""
           className="h-full w-full object-cover opacity-60"
-          width={1920}
-          height={1080}
+          width={1184}
+          height={864}
           fetchPriority="high"
           decoding="async"
         />

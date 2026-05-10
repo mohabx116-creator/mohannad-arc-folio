@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { PreferenceControls } from "@/components/preference-controls";
 import { supabase } from "@/integrations/supabase/client";
 import { alSe7r, alSe7rFilters } from "@/lib/al-se7r-data";
+import { getPreviewSrcSet } from "@/lib/image-delivery";
 import { localizeProject, translateFilter } from "@/lib/portfolio-i18n";
 import { fetchPublishedAlSe7rProject } from "@/lib/portfolio-cms";
 import { useSitePreferences } from "@/lib/site-preferences";
@@ -101,9 +102,11 @@ function Portfolio() {
       <section className="relative overflow-hidden">
         <img
           src={project.hero}
+          srcSet={getPreviewSrcSet(project.hero, [900, 1600, 1920])}
+          sizes="100vw"
           alt="Al Se7r Tower exterior render"
           width={1920}
-          height={1080}
+          height={1400}
           fetchPriority="high"
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover opacity-35"
@@ -181,6 +184,7 @@ function Portfolio() {
             <div className="aspect-[16/10] overflow-hidden">
               <img
                 src={project.hero}
+                srcSet={getPreviewSrcSet(project.hero, [600, 900, 1200])}
                 alt="Al Se7r Tower exterior render"
                 loading="lazy"
                 decoding="async"

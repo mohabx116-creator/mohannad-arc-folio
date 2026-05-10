@@ -9,6 +9,7 @@ import {
   type CaseStudySection,
   type PortfolioAsset,
 } from "@/lib/al-se7r-data";
+import { getPreviewSrcSet } from "@/lib/image-delivery";
 import { localizeProject, translateFilter } from "@/lib/portfolio-i18n";
 import { fetchPublishedAlSe7rProject } from "@/lib/portfolio-cms";
 import { useSitePreferences } from "@/lib/site-preferences";
@@ -106,9 +107,11 @@ function CaseStudy() {
       <section className="relative min-h-[92vh] overflow-hidden">
         <img
           src={project.hero}
+          srcSet={getPreviewSrcSet(project.hero, [900, 1600, 1920])}
+          sizes="100vw"
           alt="Al Se7r Tower exterior render"
           width={1920}
-          height={1080}
+          height={1400}
           fetchPriority="high"
           decoding="async"
           className="absolute inset-0 h-full w-full object-cover opacity-65"
@@ -340,6 +343,7 @@ function ImageCard({
       >
         <img
           src={asset.thumbnailUrl ?? asset.src}
+          srcSet={getPreviewSrcSet(asset.thumbnailUrl ?? asset.src, [600, 900, 1200])}
           alt={asset.displayName}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "auto"}
