@@ -35,6 +35,9 @@ function Portfolio() {
   const projectQuery = useQuery({
     queryKey: ["public-project", "al-se7r-tower"],
     queryFn: fetchPublishedAlSe7rProject,
+    staleTime: 1000 * 60 * 5,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
   const rawProject = projectQuery.data ?? (projectQuery.isLoading ? alSe7r : null);
   const project = rawProject ? localizeProject(rawProject, language) : null;
@@ -97,8 +100,8 @@ function Portfolio() {
 
       <section className="relative overflow-hidden">
         <img
-          src={project.cover}
-          alt="Al Se7r Tower final presentation board"
+          src={project.hero}
+          alt="Al Se7r Tower exterior render"
           width={1920}
           height={1080}
           fetchPriority="high"

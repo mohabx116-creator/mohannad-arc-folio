@@ -12,6 +12,7 @@ type SupabaseQueryClient = {
 
 const db = supabase as SupabaseQueryClient;
 let publicAlSe7rProjectPromise: Promise<PortfolioProject | null> | null = null;
+const SUPABASE_OBJECT_PUBLIC_PATH = "/storage/v1/object/public/";
 
 type ProjectDb = {
   id: string;
@@ -147,8 +148,8 @@ function mapProject(
     category: project.category ?? alSe7r.category,
     shortDescription: project.short_description ?? alSe7r.shortDescription,
     longDescription: project.long_description ?? alSe7r.longDescription,
-    hero: heroAsset?.src ?? project.cover_image ?? alSe7r.hero,
-    cover: coverAsset?.src ?? project.cover_image ?? alSe7r.cover,
+    hero: getImagePreviewUrl(heroAsset?.src ?? project.cover_image, 1920) ?? alSe7r.hero,
+    cover: getImagePreviewUrl(coverAsset?.src ?? project.cover_image, 1920) ?? alSe7r.cover,
     isFeatured: project.is_featured !== false,
     isPublished: project.is_published !== false,
     displayOrder: project.display_order ?? 0,
@@ -187,7 +188,9 @@ function mapAsset(asset: AssetDb): PortfolioAsset {
     mimeType: asset.mime_type ?? "",
     fileSize: asset.file_size ?? undefined,
     thumbnailUrl:
-      typeof asset.metadata?.thumbnail_url === "string" ? asset.metadata.thumbnail_url : undefined,
+      typeof asset.metadata?.thumbnail_url === "string"
+        ? asset.metadata.thumbnail_url
+        : getImagePreviewUrl(asset.file_url, 900),
     category: asset.category ?? asset.asset_type,
     sectionId: asset.section_id ?? "",
     isHero: asset.is_hero === true,
@@ -195,6 +198,19 @@ function mapAsset(asset: AssetDb): PortfolioAsset {
     published: asset.is_published !== false,
     order: asset.display_order ?? 0,
   };
+}
+
+function getImagePreviewUrl(src: string | null | undefined, width: number) {
+  if (!src || !src.includes(SUPABASE_OBJECT_PUBLIC_PATH)) return undefined;
+  const [baseUrl, query = ""] = src.split("?");
+  const renderUrl = baseUrl.replace(
+    SUPABASE_OBJECT_PUBLIC_PATH,
+    "/storage/v1/render/image/public/",
+  );
+  const params = new URLSearchParams(query);
+  params.set("width", String(width));
+  params.set("quality", "75");
+  return `${renderUrl}?${params.toString()}`;
 }
 
 function metadataToList(metadata: Record<string, unknown> | null | undefined) {

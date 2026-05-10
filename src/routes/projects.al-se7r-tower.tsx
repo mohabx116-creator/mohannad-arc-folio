@@ -33,6 +33,9 @@ function CaseStudy() {
   const projectQuery = useQuery({
     queryKey: ["public-project", "al-se7r-tower"],
     queryFn: fetchPublishedAlSe7rProject,
+    staleTime: 1000 * 60 * 5,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
   });
   const rawProject = projectQuery.data ?? (projectQuery.isLoading ? alSe7r : null);
   const project = rawProject ? localizeProject(rawProject, language) : null;
@@ -215,7 +218,8 @@ function SectionBlock({
   const [showAll, setShowAll] = useState(false);
   const images = section.assets.filter((asset) => asset.type === "image");
   const documents = section.assets.filter((asset) => asset.type === "pdf");
-  const initialImageLimit = section.id === "visualization" ? 6 : images.length;
+  const initialImageLimit =
+    section.id === "overview" ? 1 : section.id === "visualization" ? 6 : images.length;
   const visibleImages = showAll ? images : images.slice(0, initialImageLimit);
   const hiddenImageCount = Math.max(images.length - visibleImages.length, 0);
   const shouldRenderMedia = index === 1 || isNear;
